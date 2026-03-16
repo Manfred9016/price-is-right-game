@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Price is Right: Mega Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .screen { transition: opacity 0.5s ease-in-out; }
+        .hidden-screen { display: none; opacity: 0; }
+        @keyframes winner-pulse {
+            0%, 100% { transform: scale(1.05); box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.7); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(253, 224, 71, 0); }
+        }
+        .winner-animation { animation: winner-pulse 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <div id="start-screen" class="screen min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-extrabold tracking-tighter mb-2 text-yellow-300">The Price is Right</h1>
+            <p class="text-xl md:text-2xl text-gray-300 mb-8">Team Showdown: Chulin Sugar Edition</p>
+            <button id="start-game-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold text-2xl py-4 px-10 rounded-lg shadow-lg transition transform hover:scale-105">
+                Start Game
+            </button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen hidden-screen min-h-screen p-4 sm:p-6 lg:p-8">
+        <div class="max-w-7xl mx-auto">
+            <header class="text-center mb-6">
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tighter text-yellow-300">The Price is Right</h1>
+                <p id="theme-text" class="text-xl text-gray-300 mt-1">Theme: Loading...</p>
+                <div class="w-full bg-gray-700 rounded-full h-2.5 mt-4">
+                    <div id="progress-bar" class="bg-yellow-400 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </header>
+
+            <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div id="boys-panel" class="lg:col-span-1 order-2 lg:order-1 flex flex-col items-center p-6 rounded-2xl shadow-lg bg-blue-600 bg-opacity-80 transition-all duration-500">
+                    <h2 class="text-3xl font-bold text-white mb-4">Boys Team</h2>
+                    <div id="boys-score" class="text-5xl font-extrabold text-white tracking-tighter mb-6 bg-black bg-opacity-20 px-6 py-2 rounded-lg">0</div>
+                    <div class="w-full">
+                        <label for="boys-bid" class="block text-sm font-medium text-white mb-2">Enter Your Bid (NT$):</label>
+                        <input type="number" id="boys-bid" placeholder="0" class="w-full p-3 rounded-lg border-2 border-blue-400 text-gray-900 font-bold text-xl text-center shadow-inner transition focus:ring-blue-500 bg-white">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1 order-1 lg:order-2 space-y-4">
+                    <div class="bg-gray-800 p-6 rounded-2xl shadow-2xl text-center border-2 border-gray-700">
+                        <h3 id="item-name" class="text-3xl font-bold text-white mb-4">Item Name</h3>
+                        <div class="relative w-full aspect-video rounded-lg overflow-hidden mb-4 bg-gray-700">
+                            <img id="item-image" src="Assets/The Price is right.jpg" alt="Item" class="w-full h-full object-cover">
+                        </div>
+                        <div id="price-reveal-section" class="transition-opacity duration-700 opacity-0">
+                            <p class="text-xl text-gray-300 mb-2">Actual Retail Price:</p>
+                            <p id="item-price" class="text-5xl font-black text-green-400 tracking-tight bg-black bg-opacity-25 py-3 rounded-lg">NT$ 0</p>
+                        </div>
+                    </div>
+                    <div id="game-status" class="text-center p-4 rounded-lg text-white font-bold text-2xl transition-all duration-300 bg-gray-700 shadow-md hidden"></div>
+                </div>
+                
+                <div id="girls-panel" class="lg:col-span-1 order-3 lg:order-3 flex flex-col items-center p-6 rounded-2xl shadow-lg bg-pink-600 bg-opacity-80 transition-all duration-500">
+                    <h2 class="text-3xl font-bold text-white mb-4">Girls Team</h2>
+                    <div id="girls-score" class="text-5xl font-extrabold text-white tracking-tighter mb-6 bg-black bg-opacity-20 px-6 py-2 rounded-lg">0</div>
+                    <div class="w-full">
+                        <label for="girls-bid" class="block text-sm font-medium text-white mb-2">Enter Your Bid (NT$):</label>
+                        <input type="number" id="girls-bid" placeholder="0" class="w-full p-3 rounded-lg border-2 border-pink-400 text-gray-900 font-bold text-xl text-center shadow-inner transition focus:ring-pink-500 bg-white">
+                    </div>
+                </div>
+            </main>
+            
+            <footer id="controls" class="text-center mt-6">
+                <button id="lock-bids-btn" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold text-xl py-3 px-12 rounded-lg shadow-lg transition transform hover:scale-105">Lock In Bids</button>
+                <button id="next-item-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold text-xl py-3 px-12 rounded-lg shadow-lg transition transform hover:scale-105 hidden animate-pulse">Next Item</button>
+            </footer>
+        </div>
+    </div>
+
+    <div id="end-screen" class="screen hidden-screen min-h-screen flex flex-col items-center justify-center p-4 text-center">
+        <h1 class="text-5xl font-extrabold tracking-tighter mb-4">Game Over!</h1>
+        <p id="end-message" class="text-3xl font-bold mb-8"></p>
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 text-2xl mb-12">
+            <p><span class="font-bold text-blue-400">Boys Team:</span> <span id="final-boys-score">0</span></p>
+            <p><span class="font-bold text-pink-400">Girls Team:</span> <span id="final-girls-score">0</span></p>
+        </div>
+        <button id="play-again-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xl py-3 px-8 rounded-lg shadow-lg transition transform hover:scale-105">Play Again</button>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const gameData = [
+            {
+                theme: 'High-End Tech',
+                items: [
+            { name: 'Fender headphones', p: 'OTg4OA==', imageUrl: 'Assets/Fender Audio.jpg' },
+            { name: 'Dell UltraSharp 52 Thunderbolt Hub Monitor', p: 'MzM4ODg=', imageUrl: 'Assets/Dell UltraSharp 52 Thunderbolt Hub Monitor.jpg' },
+            { name: 'TCL RayNeo Air Pro 4 Glasses', p: 'ODYxMg==', imageUrl: 'Assets/TCL RayNeo Air Pro 4 Glasses.jpg' },
+            { name: 'Samsung Galaxy Z TriFold', p: 'NDk5OTA=', imageUrl: 'Assets/Samsung Galaxy Z TriFold.jpg' },
+            { name: 'Lenovo Legion Pro Rollable', p: 'MTI4NjA1LjAx', imageUrl: 'Assets/Lenovo Legion Pro Rollable\'.jpg' },
+            { name: 'Boston Dynamics Atlas price', p: 'NDgyMjgxNS45NQ==', imageUrl: 'Assets/Boston Dynamics Atlas price.jpg' }
+        ]
+            },
+            {
+                theme: 'Home & Kitchen',
+                items: [
+            { name: 'INAX NEW SATIS G 坐式馬桶', p: 'MjQ5NjAw', imageUrl: 'Assets/INAX NEW SATIS G.jpg' },
+            { name: 'Steam Iron Clothes Garment', p: 'MjQ3NS43Nw==', imageUrl: 'Assets/Steam Iron Clothes Garment.jpg' },
+            { name: 'Nespresso Vertuo Coffee Maker', p: 'MTQ2MDA=', imageUrl: 'Assets/Nespresso Vertuo Coffee Maker.jpg' },
+            { name: 'Tatung Air Fryer', p: 'Mzg4MA==', imageUrl: 'Assets/Tatung AirFryer.jpg' },
+            { name: 'Kirkland Signature Krinkle cut Potato Chips', p: 'Mjc5', imageUrl: 'Assets/Kirkland Signature Krinkle cut Potato Chips.jpg' },
+            { name: 'Champion Washed Eggs (冠軍洗選蛋) 600g (10-pack)', p: 'NTU=', imageUrl: 'Assets/Champion Washed Eggs (冠軍洗選蛋) 600g (10-pack).jpg' }
+                ]
+            },
+            {
+                theme: 'Luxury & Fashion',
+                items: [
+                    { name: 'Hermes 愛馬仕 Kelly 32CM', p: 'NjQwMDAw', imageUrl: 'Assets/Hermes 愛馬仕 Kelly 32CM.jpg' },
+                    { name: '10 Gram Gold Bullion 999.9 Fine UBS Kinebar', p: 'NTc4MDA=', imageUrl: 'Assets/10 Gram Gold Bullion 999.9 Fine UBS Kinebar.jpg' },
+                    { name: 'Swarovski Eternity halo solitaire ring', p: 'MTgwMDA=', imageUrl: 'Assets/Swarovski Eternity halo solitaire ring.jpg' },
+                    { name: 'Vacuum Packing Travel Backpack', p: 'MTgwMA==', imageUrl: 'Assets/Vacuum Packing Travel Backpack.jpg' },
+                    { name: 'Stanley 冒險系列 吸管隨手杯2.0 0.88L', p: 'MTg5Nw==', imageUrl: 'Assets/Stanley 冒險系列 吸管隨手杯2.0 0.88L.jpg' },
+                    { name: 'Haagen dazs ice cream', p: 'Mjk5', imageUrl: 'Assets/Haagen dazs ice cream.jpg' },
+                ]
+            },
+            {
+        theme: 'Sports & Outdoors',
+        items: [
+            { name: 'Yamaha YZF-R15', p: 'MTIwMDAw', imageUrl: 'Assets/Yamaha YZF-R15.jpg' },
+            { name: 'KD signature shoes', p: 'Mjk5Mg==', imageUrl: 'Assets/kd signature shoes.jpg' },
+            { name: 'Rolex Submariner Date 16613', p: 'NDM4MDAw', imageUrl: 'Assets/Rolex Submariner Date 16613.jpg' },
+            { name: 'Air Jordan 1 High 85', p: 'ODg4Nw==', imageUrl: 'Assets/Air Jordan 1 High 85.jpg' },
+            { name: 'Chanel n05 eau de parfum', p: 'MTYwMDA=', imageUrl: 'Assets/Chanel n05 eau de parfum.jpg' },
+            { name: 'LeBron James Nike Gold Swingman Player Jersey', p: 'MzcxOA==', imageUrl: 'Assets/LeBron James Nike Gold Swingman Player Jersey.jpg' },
+            { name: 'Decathlon dumbbell 10kg', p: 'ODk5', imageUrl: 'Assets/Decathlon dumbbell 10kg.jpg' }
+            ]
+            },
+            {
+        theme: 'Random & Fun',
+        items: [
+            { name: 'Dragon Ball Z Easycard', p: 'Mzk5', imageUrl: 'Assets/Dragon Ball Z Easycard.jpg' },
+            { name: 'Pikachu_ME_Ascended_Heroes ', p: 'MTAuNjA=', imageUrl: 'Assets/Pikachu_ME_Ascended_Heroes.jpg' },
+            { name: 'JIPAI ', p: 'ODA=', imageUrl:'Assets/JIPAI.jpg'},
+            { name: 'Chicken McNuggets', p: 'NTA=', imageUrl: 'Assets/Chicken McNuggets.jpg' },
+            { name: '2023 OREO X BLACKPINK PHOTOCARDS #02 JENNIE PSA 10LED.jpg', p: 'NDgwMg==', imageUrl: 'Assets/2023 OREO X BLACKPINK PHOTOCARDS #02 JENNIE PSA 10.jpg' },
+            { name: 'Boy Next Door Collectable', p: 'NTQz', imageUrl: 'Assets/Boy Next Door Collectable.jpg' },
+            { name: 'PSA10 Mario Pikachu', p: 'MTMwMDAwMA==', imageUrl: 'Assets/PSA10 Mario Pikachu.jpg' }
+            ]
+            }
+        ];  
+
+        // --- STATE & UI LOGIC (As per original) ---
+        let gameState = 'start';
+        let teams = { boys: { score: 0 }, girls: { score: 0 } };
+        let currentThemeIndex = 0;
+        let currentItemIndex = 0;
+        let roundWinner = null;
+        const totalItems = gameData.reduce((acc, theme) => acc + theme.items.length, 0);
+
+        const screens = { start: document.getElementById('start-screen'), game: document.getElementById('game-screen'), end: document.getElementById('end-screen') };
+        const buttons = { start: document.getElementById('start-game-btn'), lockBids: document.getElementById('lock-bids-btn'), nextItem: document.getElementById('next-item-btn'), playAgain: document.getElementById('play-again-btn') };
+        const inputs = { boysBid: document.getElementById('boys-bid'), girlsBid: document.getElementById('girls-bid') };
+        const displays = { theme: document.getElementById('theme-text'), progressBar: document.getElementById('progress-bar'), boysScore: document.getElementById('boys-score'), girlsScore: document.getElementById('girls-score'), boysPanel: document.getElementById('boys-panel'), girlsPanel: document.getElementById('girls-panel'), itemName: document.getElementById('item-name'), itemImage: document.getElementById('item-image'), priceReveal: document.getElementById('price-reveal-section'), itemPrice: document.getElementById('item-price'), gameStatus: document.getElementById('game-status'), endMessage: document.getElementById('end-message'), finalBoysScore: document.getElementById('final-boys-score'), finalGirlsScore: document.getElementById('final-girls-score') };
+
+        function updateUI() {
+            displays.boysScore.textContent = teams.boys.score.toLocaleString();
+            displays.girlsScore.textContent = teams.girls.score.toLocaleString();
+            const currentItem = gameData[currentThemeIndex].items[currentItemIndex];
+            displays.theme.textContent = `Theme: ${gameData[currentThemeIndex].theme}`;
+            displays.itemName.textContent = currentItem.name;
+            displays.itemImage.src = currentItem.imageUrl;
+            const itemsPlayed = gameData.slice(0, currentThemeIndex).reduce((acc, theme) => acc + theme.items.length, 0) + currentItemIndex;
+            displays.progressBar.style.width = `${((itemsPlayed) / totalItems) * 100}%`;
+            inputs.boysBid.disabled = gameState !== 'bidding';
+            inputs.girlsBid.disabled = gameState !== 'bidding';
+            buttons.lockBids.style.display = gameState === 'bidding' ? 'inline-block' : 'none';
+            buttons.nextItem.style.display = gameState === 'reveal' ? 'inline-block' : 'none';
+            if (gameState === 'bidding') {
+                displays.priceReveal.classList.add('opacity-0');
+                displays.gameStatus.classList.add('hidden');
+                inputs.boysBid.value = ''; inputs.girlsBid.value = '';
+                displays.boysPanel.classList.remove('winner-animation');
+                displays.girlsPanel.classList.remove('winner-animation');
+            }
+        }
+
+        function lockBids() {
+            const boyBid = parseInt(inputs.boysBid.value, 10) || 0;
+            const girlBid = parseInt(inputs.girlsBid.value, 10) || 0;
+            if (boyBid === 0 || girlBid === 0) return;
+            gameState = 'reveal';
+            const actualPrice = parseFloat(atob(gameData[currentThemeIndex].items[currentItemIndex].p));
+            displays.itemPrice.textContent = `NT$ ${actualPrice.toLocaleString()}`;
+            displays.priceReveal.classList.remove('opacity-0');
+            const boyDiff = actualPrice - boyBid; const girlDiff = actualPrice - girlBid;
+            const isBoyOver = boyDiff < 0; const isGirlOver = girlDiff < 0;
+            if (isBoyOver && isGirlOver) roundWinner = 'over';
+            else if (isBoyOver) roundWinner = 'girls';
+            else if (isGirlOver) roundWinner = 'boys';
+            else roundWinner = (boyDiff < girlDiff) ? 'boys' : (girlDiff < boyDiff) ? 'girls' : 'tie';
+            if (roundWinner === 'boys') displays.boysPanel.classList.add('winner-animation');
+            else if (roundWinner === 'girls') displays.girlsPanel.classList.add('winner-animation');
+            displays.gameStatus.classList.remove('hidden');
+            displays.gameStatus.textContent = roundWinner === 'over' ? "Both Over!" : roundWinner === 'tie' ? "Tie!" : `${roundWinner.toUpperCase()} Win!`;
+            updateUI();
+        }
+
+        function nextItem() {
+            if (roundWinner === 'boys' || roundWinner === 'girls') teams[roundWinner].score += 100;
+            currentItemIndex++;
+            if (currentItemIndex >= gameData[currentThemeIndex].items.length) { currentItemIndex = 0; currentThemeIndex++; }
+            if (currentThemeIndex >= gameData.length) { gameState = 'end'; displays.endMessage.textContent = "Game Over!"; displays.finalBoysScore.textContent = teams.boys.score; displays.finalGirlsScore.textContent = teams.girls.score; Object.values(screens).forEach(s => s.classList.add('hidden-screen')); screens.end.classList.remove('hidden-screen'); }
+            else { gameState = 'bidding'; updateUI(); }
+        }
+
+        buttons.start.addEventListener('click', () => { gameState = 'bidding'; screens.start.classList.add('hidden-screen'); screens.game.classList.remove('hidden-screen'); updateUI(); });
+        buttons.lockBids.addEventListener('click', lockBids);
+        buttons.nextItem.addEventListener('click', nextItem);
+        buttons.playAgain.addEventListener('click', () => location.reload());
+    });
+    </script>
+</body>
+</html>
